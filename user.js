@@ -4,7 +4,6 @@ const bcrypt = require("bcrypt");
 async function createUser(req, res) {
   const { email, password } = req.body;
   const hashedPassword = await hashPassword(password);
-
   const user = new User({ email, password: hashedPassword });
 
   user
