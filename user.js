@@ -1,12 +1,36 @@
-const { User } = require("./user");
+const { User } = require("./mongo");
+const bcrypt = require("bcrypt");
 
-function createUser(req, res) {
+async function createUser(req, res) {
   const { email, password } = req.body;
-  const user = new User({ email, password });
-  user
-    .save()
-    .then((res) => res.send("utilisateur créé"))
-    .catch((err) => console.error("erreur création utilisateur", err));
+  const hashedPassword = await hashPassword(password);
+
+  const user = new User({ email, password: hashedPassword });
+
+  user.save().then(() => res.status(201).send({ message: "utilisateur créé" }));
+  // .catch((err) =>
+  //   res.status(409).send({ message: "utilisateur existant :" + err })
+  // );
 }
 
-module.exports = { createUser };
+function hashPassword(password) {
+  const saltRounds = 10;
+  return bcrypt.hash(password, saltRounds);
+}
+
+function logUser(req, res) {
+  const { email, password } = req.body;
+  user.findOne({ email: email }).then((user) => {
+    if (!user) {
+      return res.status(403).send({ message: "Utilisateur inconnu" });
+    }
+    bcrypt.compare(password, user.password).then((valid) => {
+      if (!valid) {
+        return res.status(403).send({ message: "Mot de passe incorrect" });
+      }
+      res.status(200).send({ message: "Utilisateur connecté" });
+    });
+  });
+}
+
+module.exports = { createUser, logUser };
