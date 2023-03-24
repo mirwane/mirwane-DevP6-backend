@@ -7,10 +7,12 @@ async function createUser(req, res) {
 
   const user = new User({ email, password: hashedPassword });
 
-  user.save().then(() => res.status(201).send({ message: "utilisateur créé" }));
-  // .catch((err) =>
-  //   res.status(409).send({ message: "utilisateur existant :" + err })
-  // );
+  user
+    .save()
+    .then(() => res.status(201).send({ message: "utilisateur créé" }))
+    .catch((err) =>
+      res.status(409).send({ message: "utilisateur existant :" + err })
+    );
 }
 
 function hashPassword(password) {
